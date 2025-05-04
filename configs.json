@@ -1,0 +1,12 @@
+{
+    "phone": {
+        "process_name": "3CXPhone.exe",
+        "window_title": "3CX",
+        "executable_path": "E:\\share\\3CXPhone\\3CXPhone.exe"
+    },
+    "anydesk": {
+        "process_name": "Anydesk.exe",
+        "window_title": "Anydesk",
+        "executable_path": "C:\\Users\\proshasoft\\Desktop\\shits\\sofwares\\AnyDesk\\AnyDesk.exe"
+    }
+}
