@@ -2,17 +2,20 @@ import customtkinter as ctk
 import json
 import os
 from company import CompanyList
+import sys
 
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("blue")
 
-class AuthSystem():
+class AuthSystem:
     def __init__(self):
         self.window = ctk.CTk()
         self.window.title("Secure Authentication")
         self.window.geometry("450x650")
         self.window.resizable(False, False)
         self.window.configure(fg_color="#2B2B2B")
+
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         # Bind Enter key to the window
         self.window.bind("<Return>", lambda event: self.login())
@@ -27,6 +30,10 @@ class AuthSystem():
         self.show_login_frame()
 
         self.window.mainloop()
+
+    def on_closing(self):
+        self.window.destroy()
+        sys.exit()
 
     def create_login_frame(self):
         self.login_frame = ctk.CTkFrame(

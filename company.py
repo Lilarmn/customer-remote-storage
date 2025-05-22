@@ -12,8 +12,11 @@ import win32con
 import logging
 import time
 from functools import partial
+from Report import WorkReportApp
 from configs import *
 from contacts import CompanyApp
+from reminder import ReliableReminderApp
+from todo import ToDoUI
 
 
 class CompanyList(customtkinter.CTk):
@@ -23,6 +26,8 @@ class CompanyList(customtkinter.CTk):
         self.file_path = "companies_list.json"
         self.data = []
         self.config_path = os.path.join(os.path.expanduser("~"), "company_manager_config.json")
+
+        # self.attributes("-fullscreen", True)
 
         self.user = user
 
@@ -59,6 +64,13 @@ class CompanyList(customtkinter.CTk):
         # Main container
         self.main_frame = customtkinter.CTkFrame(self)
         self.main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        self.radio_var = tkinter.IntVar(value=-1)  # Create variable here
+        self.rows = []
+
+        # self.create_widgets()
+
+        self.radio_var.trace_add("write", self.update_row_highlight)
 
         self.create_widgets()
         # self.create_widgets_company()
@@ -195,6 +207,42 @@ class CompanyList(customtkinter.CTk):
         )
         self.config_button.grid(row=0, column=3, padx=5)
 
+        self.report_button = customtkinter.CTkButton(
+            button_frame,
+            text="Report 📝",
+            command=self.open_report,
+            width=120,
+            text_color='black',
+            font=("Segoe UI Emoji", 14),
+            hover_color="#A5D6A7",
+            fg_color="#c45bde"
+        )
+        self.report_button.grid(row=0, column=4, padx=5)
+
+        self.reminder_button = customtkinter.CTkButton(
+            button_frame,
+            text="Alarm 🚨",
+            command=self.open_reminder,
+            width=120,
+            text_color='black',
+            font=("Segoe UI Emoji", 14),
+            hover_color="#A5D6A7",
+            fg_color="#B03052"
+        )
+        self.reminder_button.grid(row=0, column=5, padx=5)
+
+        self.todo_btn = customtkinter.CTkButton(
+            button_frame,
+            text="Todo ✅ ",
+            command=self.open_todo,
+            width=120,
+            text_color='black',
+            font=("Segoe UI Emoji", 14),
+            hover_color="#A5D6A7",
+            fg_color="#05C95D"
+        )
+        self.todo_btn.grid(row=0, column=6, padx=5)
+
         # Table Section
         list_container = customtkinter.CTkFrame(self.main_frame)
         list_container.pack(fill="both", expand=True, padx=10, pady=10)
@@ -227,9 +275,22 @@ class CompanyList(customtkinter.CTk):
         for col, weight in enumerate(self.column_weights):
             self.scrollable_frame.grid_columnconfigure(col, weight=weight, uniform="cols")
 
+
         # Radio button variable
         self.radio_var = tkinter.IntVar(value=-1)
 
+
+    def update_row_highlight(self, *args):
+        selected_idx = self.radio_var.get()
+        for idx, row_frame in enumerate(self.rows):
+            if idx == selected_idx:
+                # Use theme-aware colors
+                row_frame.configure(fg_color=("gray70", "gray30"))
+            else:
+                row_frame.configure(fg_color="transparent")
+        # Force update the scrollable frame
+        self.scrollable_frame.update_idletasks()
+    
 
     def add_company(self):
         name = self.name_entry.get().strip()
@@ -346,6 +407,8 @@ class CompanyList(customtkinter.CTk):
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
+        self.rows = []
+
         query = self.search_entry.get()
         conditions = self.parse_search_query(query)
         filtered_data = [c for c in self.data if self.matches_conditions(c, conditions)]
@@ -357,13 +420,17 @@ class CompanyList(customtkinter.CTk):
             for col, (weight, width) in enumerate(zip(self.column_weights, self.column_widths)):
                 entry_frame.grid_columnconfigure(col, weight=weight, uniform="cols")
 
+            self.rows.append(entry_frame)
+            entry_frame.bind("<Button-1>", lambda e, idx=idx: self.radio_var.set(idx))
+
             # Radio button
             customtkinter.CTkRadioButton(
                 entry_frame,
                 text="",
                 variable=self.radio_var,
                 value=idx,
-                width=self.column_widths[0]
+                width=self.column_widths[0],
+                command=lambda v=idx: (self.radio_var.set(v), self.update_row_highlight())
             ).grid(row=0, column=0, padx=5, sticky="w")
 
             # Company name
@@ -433,6 +500,8 @@ class CompanyList(customtkinter.CTk):
                 command=partial(self. connect_remote, company['ip'])
             )
             remote_btn.grid(row=0, column=6, padx=5, sticky="w")
+
+        self.update_row_highlight()
 
     
     def show_contacts(self,company_name):
@@ -656,6 +725,24 @@ class CompanyList(customtkinter.CTk):
             os.startfile(self.config_path)
         else:  # Mac/Linux
             subprocess.run(["xdg-open", self.config_path])
+
+    def open_report(self):
+        self.withdraw()
+
+        # Create CompanyApp instance with parameters
+        WorkReportApp(self).mainloop()
+
+    def open_reminder(self):
+        self.withdraw()
+        ReliableReminderApp(self).mainloop()
+
+    def open_todo(self):
+        current_theme = customtkinter.get_appearance_mode()
+
+        self.withdraw()
+        root_todo = customtkinter.CTk()
+        app_todo = ToDoUI(root_todo, master=self, original_theme=current_theme)
+        root_todo.mainloop()
 
 if __name__ == "__main__":
     app = CompanyList()

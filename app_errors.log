@@ -3,3 +3,18 @@
 2025-05-04 10:21:50,699 - ERROR - UI Error: All fields are required!
 2025-05-04 10:22:21,812 - ERROR - UI Error: All fields are required!
 2025-05-04 12:56:45,199 - ERROR - UI Error: All fields are required!
+2025-05-04 15:04:01,462 - ERROR - UI Error: All fields are required!
+2025-05-12 13:53:07,956 - ERROR - UI Error: All fields are required!
+2025-05-20 17:07:40,542 - WARNING - Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+2025-05-20 17:08:04,044 - WARNING - Error while downloading from https://huggingface.co/facebook/bart-large-mnli/resolve/main/model.safetensors: HTTPSConnectionPool(host='cas-bridge.xethub.hf.co', port=443): Read timed out.
+Trying to resume download...
+2025-05-20 17:12:01,804 - WARNING - Error while downloading from https://huggingface.co/facebook/bart-large-mnli/resolve/main/model.safetensors: HTTPSConnectionPool(host='cas-bridge.xethub.hf.co', port=443): Read timed out.
+Trying to resume download...
+2025-05-20 17:12:15,446 - WARNING - Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+2025-05-20 17:14:17,705 - WARNING - Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+2025-05-20 17:14:29,740 - WARNING - Error while downloading from https://huggingface.co/facebook/bart-large-mnli/resolve/main/pytorch_model.bin: HTTPSConnectionPool(host='cas-bridge.xethub.hf.co', port=443): Read timed out.
+Trying to resume download...
+2025-05-20 17:15:09,745 - WARNING - Error while downloading from https://huggingface.co/facebook/bart-large-mnli/resolve/main/pytorch_model.bin: HTTPSConnectionPool(host='cas-bridge.xethub.hf.co', port=443): Read timed out.
+Trying to resume download...
+2025-05-20 17:15:44,048 - WARNING - Error while downloading from https://huggingface.co/facebook/bart-large-mnli/resolve/main/model.safetensors: HTTPSConnectionPool(host='cas-bridge.xethub.hf.co', port=443): Read timed out.
+Trying to resume download...

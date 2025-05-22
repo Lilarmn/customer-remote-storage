@@ -12,6 +12,7 @@ import win32con
 import time
 from functools import partial
 from configs import *
+import logging
 
 class SelectableCTkLabel(customtkinter.CTkTextbox):
     def __init__(self, master, text="", **kwargs):
@@ -65,13 +66,22 @@ class CompanyApp(customtkinter.CTk):
         self.data = []
         self.config_path = os.path.join(os.path.expanduser("~"), "company_manager_config.json")
 
+        
+
         self.user = user
         self.company_name = company_name
+
+        logging.basicConfig(
+            filename='app_errors.log',
+            level=logging.ERROR,
+            format='%(asctime)s - %(levelname)s - %(message)s'
+        )
 
         if not os.path.exists(self.config_path):
             self.create_default_config()
             
         self.load_config()
+        self.editing_index = -1
 
         # Configure window
         self.title("Contacts")
@@ -109,6 +119,13 @@ class CompanyApp(customtkinter.CTk):
         self.main_frame = customtkinter.CTkFrame(self)
         self.main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
+        self.radio_var = tkinter.IntVar(value=-1)  # Create variable here
+        self.rows = []
+
+        # self.create_widgets()
+
+        self.radio_var.trace_add("write", self.update_row_highlight)
+
         self.create_widgets()
         # self.create_widgets_company()
         self.load_from_file()
@@ -122,7 +139,7 @@ class CompanyApp(customtkinter.CTk):
         except Exception as e:
             self.show_error(f"Error loading config: {str(e)}")
             self.create_default_config()
-
+  
 
     def create_default_config(self):
             default_config = {
@@ -143,7 +160,7 @@ class CompanyApp(customtkinter.CTk):
 
 
     def create_widgets(self):
-        #Back to Company list
+        #Back to Person list
         back_btn = customtkinter.CTkButton(
             self,
             text="← Back to List",
@@ -224,7 +241,7 @@ class CompanyApp(customtkinter.CTk):
         self.delete_button = customtkinter.CTkButton(
             button_frame,
             text="Delete Selected 🗑️",
-            command=self.delete_company,
+            command=self.delete_person,
             font=("Segoe UI Emoji", 14),
             hover_color="#A5D6A7",
             text_color='black',
@@ -281,6 +298,18 @@ class CompanyApp(customtkinter.CTk):
         self.radio_var = tkinter.IntVar(value=-1)
 
 
+    def update_row_highlight(self, *args):
+        selected_idx = self.radio_var.get()
+        for idx, row_frame in enumerate(self.rows):
+            if idx == selected_idx:
+                # Use theme-aware colors
+                row_frame.configure(fg_color=("gray70", "gray30"))
+            else:
+                row_frame.configure(fg_color="transparent")
+        # Force update the scrollable frame
+        self.scrollable_frame.update_idletasks()
+
+
     def go_back(self):
         # Destroy current app window
         self.destroy()
@@ -325,7 +354,7 @@ class CompanyApp(customtkinter.CTk):
         self.refresh_display()
 
 
-    def delete_company(self):
+    def delete_person(self):
         selected_idx = self.radio_var.get()
         if selected_idx == -1:
             self.show_error("No person selected!")
@@ -389,6 +418,9 @@ class CompanyApp(customtkinter.CTk):
 
 
     def refresh_display(self):
+
+        self.rows.clear()
+
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
@@ -406,13 +438,17 @@ class CompanyApp(customtkinter.CTk):
             for col, (weight, width) in enumerate(zip(self.column_weights, self.column_widths)):
                 entry_frame.grid_columnconfigure(col, weight=weight, uniform="cols")
 
+            self.rows.append(entry_frame)
+            entry_frame.bind("<Button-1>", lambda e, idx=idx: self.radio_var.set(idx))
+
             # Radio button
             customtkinter.CTkRadioButton(
                 entry_frame,
                 text="",
                 variable=self.radio_var,
                 value=idx,
-                width=self.column_widths[0]
+                width=self.column_widths[0],
+                command=lambda v=idx: (self.radio_var.set(v), self.update_row_highlight())
             ).grid(row=0, column=0, padx=5, sticky="w")
 
             # person name
@@ -474,6 +510,8 @@ class CompanyApp(customtkinter.CTk):
                 command=partial(self. connect_remote, person['ip'])
             )
             remote_btn.grid(row=0, column=6, padx=5, sticky="w")
+
+        self.update_row_highlight()
 
 
     def validate_ip(self, ip):
